@@ -67,5 +67,36 @@ for i = 1:max_count
 end
 ```
 
+If the delay between two successive calls of the progress_bar() function is very small, then the code can cause some problems. To solve this, we can include a check condition to make sure that there is a minimum time interval between two successive function calls. The following test code uses 100ms as the minimum time interval:
+
+```julia
+# An improved code to test the progress_bar function. June 2018.
+# The time checking makes sure that the progress_bar() function is not called within
+# a very short time. Current interval is set at 100ms. 
+# This pause between successive calls helps to display the progress bar properly.
+
+max_count = 45;    # define maximum count of the loop
+Nblock = 20;       # number of blocks in the bar plot
+t1 = 1000*((60*Dates.hour(now()) + Dates.minute(now()))*60 + Dates.second(now())) + Dates.millisecond(now());
+
+
+for i = 1:max_count
+     t2 = 1000*((60*Dates.hour(now()) + Dates.minute(now()))*60 + Dates.second(now())) + Dates.millisecond(now());
+
+     if (t2 - t1 > 100)  || (i == max_count)                       # if ellapsed time > 100ms, then print progress bar
+        progress_bar(i,max_count,Nblock);
+        t1 = copy(t2);
+    end
+    
+    
+    for k = 1:5e6    end   # delay loop. sleep() command causes some unexpected issues.
+   
+end
+
+```
+
+Note that for slow running loops (those are the cases where the progress_bar is especially necessary), the first simple version of the test code works fine. 
+
+
 # Preview
 Progress = 32.5% ▓▓▓▓▓▓░░░░░░░░░░░░░
